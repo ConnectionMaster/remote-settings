@@ -29,7 +29,7 @@ Files can be attached to records. When a record has a file attached to it, it ha
 
 The Remote Settings client API is **not in charge** of downloading the remote files during synchronization.
 
-However, a `helper is available <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#file-attachments>`_ on the client instance.
+However, a `helper is available <https://firefox-source-docs.mozilla.org/services/settings/#file-attachments>`_ on the client instance.
 
 During synchronization, only the records that changed are fetched. Depending on your implementation, attachments may have to be redownloaded completely even if only a few bytes were changed.
 
@@ -69,7 +69,7 @@ And in order to create a record with both attributes and attachment, you'll have
 
     Since the dev server is open to anyone and runs on ``.mozaws.net``, we only allow certain types of files (images, audio, video, archives, ``.bin``, ``.json``, ``.gz``).
 
-    If you need to uploadd files with specific extension, let us know and we add it to the whitelist (except ``.html``, ``.js``).
+    If you need to upload files with a specific extension, let us know and we will add it to the whitelist (except ``.html``, ``.js``).
 
 
 Synchronize attachments
@@ -100,7 +100,7 @@ Attachments can be downloaded when the ``"sync"`` event is received.
       );
     });
 
-See more details in `client documentation <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#file-attachments>`_.
+See more details in `client documentation <https://firefox-source-docs.mozilla.org/services/settings/#file-attachments>`_.
 
 
 About compression

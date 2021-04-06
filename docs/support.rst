@@ -30,12 +30,37 @@ I approved the changes, but still don't see them
 Frequently Asked Questions
 --------------------------
 
+How often the synchronization happens?
+''''''''''''''''''''''''''''''''''''''
+
+Synchronizations can be within 10 minutes of the change or in 24 hours.
+
+There are two triggers for synchronization: a push notification and a polling check. Every five minutes a server side process checks for changes. If any changes are found a push notification will be sent and online clients will check in for updates. Clients that are offline or did not receive the push notification will either catch-up on next startup or automatically poll for changes every 24 hours.
+
+
+What is the lag on the CDN?
+'''''''''''''''''''''''''''
+
+The client uses the ``/v1/buckets/main/collections/{cid}/changeset`` endpoint, which requires a ``?_expected={}`` query parameter. Since the Push notification contains the latest change timestamp, the first clients to pull the changes from the CDN will bust its cache.
+
+When using the ``/records`` endpoint manually, without any query parameters, the CDN lag can be much higher (typically 1H).
+
+
 How do I setup Firefox to pull data from STAGE?
 '''''''''''''''''''''''''''''''''''''''''''''''
 
-The recommended way to setup Firefox to pull data from STAGE is to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ extension: switch the environment in the configuration section and click the *Sync* button.
+The **recommended way** to setup Firefox to pull data from STAGE is to use the `Remote Settings DevTools <https://github.com/mozilla/remote-settings-devtools>`_ extension: switch the environment in the configuration section and click the *Sync* button.
 
-Alternatively, you can change the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.0.0/extension/experiments/remotesettings/api.js#L96-L106>`_, restart and trigger a synchronization manually.
+Alternatively, in order to point STAGE before on fresh profiles for example, you can set the `appropriate preferences <https://github.com/mozilla/remote-settings-devtools/blob/1.4.0/extension/experiments/remotesettings/api.js#L113-L124>`_ in a ``user.js`` file:
+
+::
+
+    user_pref("services.settings.server", "https://settings.stage.mozaws.net/v1");
+    user_pref("dom.push.serverURL", "https://autopush.stage.mozaws.net");
+    user_pref("security.content.signature.root_hash", "3C:01:44:6A:BE:90:36:CE:A9:A0:9A:CA:A3:A5:20:AC:62:8F:20:A7:AE:32:CE:86:1C:B2:EF:B7:0F:A0:C7:45");
+    user_pref("services.settings.load_dump", false);
+
+See `developer docs <https://firefox-source-docs.mozilla.org/services/settings/#trigger-a-synchronization-manually>`_ to trigger a synchronization manually.
 
 
 How do I preview the changes before approving?
@@ -60,13 +85,13 @@ Possible workarounds:
 How do I trigger a synchronization manually?
 ''''''''''''''''''''''''''''''''''''''''''''
 
-See `developer docs <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#trigger-a-synchronization-manually>`_.
+See `developer docs <https://firefox-source-docs.mozilla.org/services/settings/#trigger-a-synchronization-manually>`_.
 
 
 How do I define default data for new profiles?
 ''''''''''''''''''''''''''''''''''''''''''''''
 
-See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html#initial-data>`_.
+See `developer docs about initial data <https://firefox-source-docs.mozilla.org/services/settings/#initial-data>`_.
 
 
 How do I automate the publication of records? (one shot)
@@ -91,10 +116,10 @@ How do I automate the publication of records? (forever)
 
 If the automation is meant to last (eg. cronjob, lambda, server to server) then the procedure would look like this:
 
-1. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``password-rules-publisher``). Secret password should be remain in a vault and managed by OPs.
+1. `Request a dedicated Kinto internal account <https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Server%3A%20Remote%20Settings>`_ to be created for you (eg. ``password-rules-publisher``). Secret password should remain in a vault and managed by OPs.
 2. Write a script that:
 
-  1. takes the server and credentials as ENV variables (eg. ``SERVER=prod AUTH=password-rules-publisher:s3cr3t``).
+  1. takes the server and credentials as ENV variables (eg. ``SERVER=prod AUTH=password-rules-publisher:s3cr3t``);
   2. compares your source of truth with the collection records. Exit early if no change;
   3. performs all deletions/updates/creations;
   4. patches the collection metadata in order to request review (see :ref:`multi-signoff tutorial <tutorial-multi-signoff-request-review>`);
@@ -109,14 +134,6 @@ We recommend the use of `kinto-http.py <https://github.com/Kinto/kinto-http.py>`
 	Generally speaking, disabling dual sign-off is possible, but only in **very** specific cases.
 
 	If you want to skip manual approval, request a review of your design by the cloud operations security team.
-
-
-How often the synchronization happens?
-''''''''''''''''''''''''''''''''''''''
-
-Synchronizations can be within 10 minutes of the change or in 24 hours.
-
-There are two triggers for synchronization: a push notification and a polling check. Every five minutes a server side process checks for changes. If any changes are found a push notification will be sent and online clients will check in for updates. Clients that are offline or did not receive the push notification will either catch-up on next startup or automatically poll for changes every 24 hours.
 
 
 Once data is ready in STAGE, how do we go live in PROD?

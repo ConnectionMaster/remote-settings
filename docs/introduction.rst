@@ -7,6 +7,10 @@ Basically, Remote Settings consists of two components: a remote server (REST API
 
 Everything is done via a collection of records that is kept in sync between the client local database and the remote data.
 
+.. note::
+
+    See also `The History of Remote Settings <https://blog.mathieu-leplatre.info/the-history-of-firefox-remote-settings.html>`_
+
 
 Why is it better than building my own?
 --------------------------------------
@@ -76,7 +80,7 @@ Or get the current list of local records:
 
 .. note::
 
-    * `Client API full reference <https://firefox-source-docs.mozilla.org/services/common/services/RemoteSettings.html>`_
+    * `Client API full reference <https://firefox-source-docs.mozilla.org/services/settings/>`_
 
 
 What does the server side API look like?
@@ -115,7 +119,7 @@ And the record is now published:
 
 .. code-block:: bash
 
-    curl ${SERVER}/buckets/main-workspace/collections/${COLLECTION}/records
+    curl ${SERVER}/buckets/main/collections/${COLLECTION}/records
 
 .. note::
 
